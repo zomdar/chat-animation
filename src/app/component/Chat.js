@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import io from "socket.io-client";
 import { v4 as uuidv4 } from "uuid";
 
-const socket = io("http://localhost:3000");
+const socket = io(process.env.NEXT_PUBLIC_OPENAI_URL);
 
 function Chat() {
   const [message, setMessage] = useState("");
