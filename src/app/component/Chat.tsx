@@ -4,7 +4,6 @@ import { useEffect, useState, ChangeEvent } from "react";
 import io from "socket.io-client";
 import { v4 as uuidv4 } from "uuid";
 
-// Assuming NEXT_PUBLIC_OPENAI_URL is correctly set in your .env file
 const socket = io(process.env.NEXT_PUBLIC_OPENAI_URL || "");
 
 interface ResponseWord {
