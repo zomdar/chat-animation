@@ -1,8 +1,11 @@
 "use client";
 
-import { useEffect, useState, ChangeEvent } from "react";
+import { useEffect, useState, ChangeEvent, KeyboardEvent } from "react";
 import io from "socket.io-client";
 import { v4 as uuidv4 } from "uuid";
+import { motion, AnimatePresence } from "framer-motion";
+import { FiArrowUp, FiSend } from "react-icons/fi"; // Import the send icon from react-icons
+import styles from "./chat.module.css";
 
 const socket = io(process.env.NEXT_PUBLIC_OPENAI_URL || "");
 
@@ -12,12 +15,27 @@ interface ResponseWord {
   visibleCount: number;
 }
 
-function Chat() {
+const loaderVariants = {
+  hidden: { opacity: 0 },
+  visible: (i: number) => ({
+    opacity: 1,
+    transition: {
+      delay: i * 0.3,
+      duration: 0.5,
+    },
+  }),
+};
+
+const Chat = () => {
   const [message, setMessage] = useState<string>("");
   const [responses, setResponses] = useState<ResponseWord[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [loadingLines, setLoadingLines] = useState<number[]>([]);
 
   useEffect(() => {
     const handleChatResponse = (response: string) => {
+      setLoading(false);
+      setLoadingLines([]);
       const messageId = uuidv4();
       const words = response.split(" ");
 
@@ -47,51 +65,82 @@ function Chat() {
   }, []);
 
   const sendMessage = () => {
-    socket.emit("chat message", message);
-    setMessage("");
+    if (message.trim() !== "") {
+      setLoading(true);
+      setLoadingLines([0, 1, 2]); // Set 3 lines of loaders
+      socket.emit("chat message", message);
+      setMessage("");
+    }
   };
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setMessage(e.target.value);
   };
 
+  const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      sendMessage();
+    }
+  };
+
+  const triggerLoader = () => {
+    setLoading(true);
+    setLoadingLines([0, 1, 2]); // Set 3 lines of loaders
+  };
+
   return (
-    <div style={{ maxWidth: "800px", margin: "0 auto" }}>
-      <ul style={{ listStyle: "none", padding: 0 }}>
+    <div className={styles.chatContainer}>
+      <ul className={styles.chatMessages}>
         {responses.map((response) => (
-          <li
-            key={response.id}
-            style={{
-              marginBottom: "10px",
-              padding: "10px",
-              borderRadius: "5px",
-              wordWrap: "break-word",
-              maxWidth: "100%",
-            }}
-          >
+          <li key={response.id} className={styles.chatMessage}>
             {response.words
               .slice(0, response.visibleCount)
               .map((word, wordIndex) => (
-                <span key={`${response.id}-${wordIndex}`} style={{ marginRight: "4px" }}>
+                <span
+                  key={`${response.id}-${wordIndex}`}
+                  className={styles.chatWord}
+                >
                   {word}
                 </span>
               ))}
           </li>
         ))}
+        <AnimatePresence>
+          {loadingLines.map((line, index) => (
+            <motion.li
+              key={index}
+              className={styles.chatMessage}
+              initial="hidden"
+              animate="visible"
+              exit="hidden"
+              custom={index}
+              variants={loaderVariants}
+            >
+              <div
+                className={`${styles.skeletonLoader} ${styles.skeletonLoaderVisible}`}
+                style={{ animationDelay: `${index * 0.3}s` }}
+              ></div>
+            </motion.li>
+          ))}
+        </AnimatePresence>
       </ul>
-      <input
-        value={message}
-        onChange={handleChange}
-        style={{ width: "100%", marginBottom: "10px", padding: "10px", boxSizing: "border-box" }}
-      />
-      <button
-        onClick={sendMessage}
-        style={{ width: "100%", padding: "10px", boxSizing: "border-box", cursor: "pointer" }}
-      >
-        Send
-      </button>
+      <div className={styles.chatInputContainer}>
+        <input
+          value={message}
+          onChange={handleChange}
+          onKeyPress={handleKeyPress}
+          className={styles.chatInput}
+          placeholder="Send Message"
+        />
+        <button onClick={sendMessage} className={styles.chatSendButton}>
+          <FiArrowUp />
+        </button>
+        {/* <button onClick={triggerLoader} className={styles.chatSendButton}>
+          Test Loader
+        </button> */}
+      </div>
     </div>
   );
-}
+};
 
 export default Chat;
