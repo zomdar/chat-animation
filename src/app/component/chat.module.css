@@ -1,83 +1,141 @@
 .chatContainer {
-    min-width: 800px;
-    max-width: 800px;
-    margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  height: 100vh;
+  max-width: 800px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.chatMessages {
+  overflow-y: auto;
+  flex-grow: 1;
+  padding: 0;
+  margin-bottom: 16px;
+  list-style: none;
+}
+
+.chatMessage {
+  margin-bottom: 10px;
+  word-wrap: break-word;
+  max-width: 100%;
+}
+
+.chatWord {
+  margin-right: 4px;
+}
+
+.userMessage .turtleChat {
+  background-color: #206cff;
+  color: white;
+}
+
+.systemMessage .turtleChat {
+  background-color: #1e1f1e;
+  color: white;
+}
+
+.chatName {
+  font-size: 0.875rem;
+  color: #8e8d94;
+}
+
+.turtleChat {
+  border-radius: 7px;
+  padding: 8px;
+  margin-top: 4px;
+}
+
+.chatInputContainer {
+  display: flex;
+  align-items: center;
+  background-color: #333;
+  padding: 10px;
+  border-radius: 35px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  bottom: 16px;
+  left: 16px;
+  right: 16px;
+  margin: 0 16px;
+}
+
+.chatInput {
+  flex-grow: 1;
+  background-color: #333;
+  border: none;
+  color: #ccc;
+  padding: 10px;
+  border-radius: 25px;
+  outline: none;
+}
+
+.chatSendButton {
+  background-color: #555;
+  border: none;
+  color: #ccc;
+  padding: 10px 12px;
+  margin-left: 10px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chatSendButton svg {
+  width: 20px;
+  height: 20px;
+}
+
+.skeletonLoader {
+  height: 16px;
+  width: 100%;
+  background: linear-gradient(90deg, #e0e0e0 25%, #d3eeff 50%, #9ee2fb 75%);
+  background-size: 200% 100%;
+  border-radius: 12px;
+  animation: skeleton-loading 2s infinite ease-in-out;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.skeletonLoaderVisible {
+  opacity: 1;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
   }
-  
-  .chatMessages {
-    list-style: none;
-    padding: 0;
+  100% {
+    background-position: -200% 0;
   }
-  
-  .chatMessage {
-    margin-bottom: 10px;
-    border-radius: 5px;
-    word-wrap: break-word;
+}
+
+/* Responsive Design */
+@media (max-width: 800px) {
+  .chatContainer {
     max-width: 100%;
+    padding: 8px;
+    margin: 0;
   }
-  
-  .chatWord {
-    margin-right: 4px;
-  }
-  
+
   .chatInputContainer {
-    display: flex;
-    align-items: center;
-    background-color: #333;
-    padding: 10px;
-    border-radius: 35px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 8px;
+    bottom: 8px;
+    left: 8px;
+    right: 8px;
+    margin: 0;
   }
-  
+
   .chatInput {
-    flex-grow: 1;
-    background-color: #333;
-    border: none;
-    color: #ccc;
-    padding: 10px;
-    border-radius: 25px;
-    outline: none;
+    padding: 8px;
   }
-  
+
   .chatSendButton {
-    background-color: #555;
-    border: none;
-    color: #ccc;
-    padding: 10px 11px;
-    margin-left: 10px;
-    border-radius: 80%;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    padding: 8px 10px;
   }
-  
-  .chatSendButton svg {
-    width: 20px;
-    height: 20px;
-  }
-  
-  .skeletonLoader {
-    height: 16px;
-    width: 100%;
-    background: linear-gradient(90deg, #e0e0e0 25%, #d3eeff 50%, #9ee2fb 75%);
-    background-size: 200% 100%;
-    border-radius: 12px;
-    animation: skeleton-loading 2s infinite ease-in-out;
-    opacity: 0;
-    transition: opacity 0.5s ease-in-out;
-  }
-  
-  .skeletonLoaderVisible {
-    opacity: 1;
-  }
-  
-  @keyframes skeleton-loading {
-    0% {
-      background-position: 200% 0;
-    }
-    100% {
-      background-position: -200% 0;
-    }
-  }
-  
+}
