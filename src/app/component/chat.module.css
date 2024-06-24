@@ -104,6 +104,7 @@
   padding: 10px;
   border-radius: 25px;
   outline: none;
+  font-size: 18px;
 }
 
 .chatSendButton {
