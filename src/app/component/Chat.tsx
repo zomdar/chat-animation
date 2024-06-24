@@ -26,6 +26,42 @@ const loaderVariants = {
   }),
 };
 
+const parseResponseText = (text: string): JSX.Element[] => {
+  const elements: JSX.Element[] = [];
+  const lines = text.split('\n');
+  
+  let currentList: JSX.Element[] = [];
+  let listType: 'ul' | 'ol' | null = null;
+
+  const addList = () => {
+    if (listType === 'ul') {
+      elements.push(<ul key={elements.length}>{currentList}</ul>);
+    } else if (listType === 'ol') {
+      elements.push(<ol key={elements.length}>{currentList}</ol>);
+    }
+    currentList = [];
+    listType = null;
+  };
+
+  lines.forEach((line, index) => {
+    if (line.startsWith('- ')) {
+      if (listType === 'ol') addList();
+      listType = 'ul';
+      currentList.push(<li key={index}>{line.substring(2)}</li>);
+    } else if (/^\d+\. /.test(line)) {
+      if (listType === 'ul') addList();
+      listType = 'ol';
+      currentList.push(<li key={index}>{line.substring(line.indexOf('.') + 2)}</li>);
+    } else {
+      if (listType) addList();
+      elements.push(<p key={index}>{line}</p>);
+    }
+  });
+
+  if (listType) addList();
+  return elements;
+};
+
 const Chat = () => {
   const [message, setMessage] = useState<string>("");
   const [responses, setResponses] = useState<ResponseWord[]>([]);
@@ -110,13 +146,16 @@ const Chat = () => {
               <span className={styles.chatName}>{item.type === "user" ? "You" : "Franklin"}</span>
               <div className={`${styles.turtleChat} ${styles[`${item.type}Chat`]}`}>
                 {response ? (
-                  response.words.slice(0, response.visibleCount).map((word, wordIndex) => (
-                    <span key={`${response.id}-${wordIndex}`} className={styles.chatWord}>
-                      {word}
-                    </span>
-                  ))
+                  <motion.div
+                    initial="hidden"
+                    animate="visible"
+                    variants={loaderVariants}
+                    className={styles.chatText}
+                  >
+                    {response.words.slice(0, response.visibleCount).join(" ")}
+                  </motion.div>
                 ) : (
-                  <span className={styles.chatText}>{item.text}</span>
+                  <div className={styles.chatText}>{parseResponseText(item.text)}</div>
                 )}
               </div>
             </li>

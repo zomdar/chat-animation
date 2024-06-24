@@ -1,4 +1,6 @@
 .chatContainer {
+  font-family: var(--font-mono);
+  line-height: 1.6em;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -20,7 +22,6 @@
 
 .chatMessage {
   margin-bottom: 10px;
-  word-wrap: break-word;
   max-width: 100%;
 }
 
@@ -47,6 +48,38 @@
   border-radius: 7px;
   padding: 8px;
   margin-top: 4px;
+}
+
+.chatText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.chatText p {
+  margin: 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.chatText ul, .chatText ol {
+  margin: 0;
+  padding-left: 20px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.chatText ul {
+  list-style-type: disc;
+}
+
+.chatText ol {
+  list-style-type: decimal;
 }
 
 .chatInputContainer {
