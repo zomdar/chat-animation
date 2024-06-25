@@ -68,7 +68,7 @@ const Chat = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [loadingLines, setLoadingLines] = useState<number[]>([]);
   const [chatHistory, setChatHistory] = useState<{ id: string; type: string; text: string }[]>([
-    { id: uuidv4(), type: "system", text: "Hello, I’m Franklin and I’m here to help you with Figma, start by asking a question!" }
+    { id: uuidv4(), type: "system", text: "Hello, I’m Franklin and I’m here to help you with anything!, start by asking a question!" }
   ]);
 
   const bottomOfChatRef = useRef<HTMLDivElement>(null);
