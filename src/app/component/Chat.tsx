@@ -4,7 +4,7 @@ import { useEffect, useState, useRef, ChangeEvent, KeyboardEvent } from "react";
 import io from "socket.io-client";
 import { v4 as uuidv4 } from "uuid";
 import { motion, AnimatePresence } from "framer-motion";
-import { FiSend } from "react-icons/fi";
+import { FiArrowUp, FiSend } from "react-icons/fi";
 import styles from "./chat.module.css";
 
 const socket = io(process.env.NEXT_PUBLIC_OPENAI_URL || "");
@@ -72,6 +72,7 @@ const Chat = () => {
   ]);
 
   const bottomOfChatRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     bottomOfChatRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -117,23 +118,23 @@ const Chat = () => {
       setChatHistory((prev) => [...prev, { id: userMessageId, type: "user", text: message }]);
       socket.emit("chat message", message);
       setMessage("");
+      if (inputRef.current) {
+        inputRef.current.style.height = "auto";
+      }
     }
   };
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     setMessage(e.target.value);
+    e.target.style.height = "auto";
+    e.target.style.height = `${e.target.scrollHeight}px`;
   };
 
-  const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyPress = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
     }
-  };
-
-  const triggerLoader = () => {
-    setLoading(true);
-    setLoadingLines([0, 1, 2]);
   };
 
   return (
@@ -173,7 +174,7 @@ const Chat = () => {
               variants={loaderVariants}
             >
               <div
-                className={`${styles.skeletonLoader} ${styles.skeletonLoaderVisible}`}
+                className={`${styles.skeletonLoader} ${index === 2 ? styles.skeletonLoaderShort : ''} ${styles.skeletonLoaderVisible}`}
                 style={{ animationDelay: `${index * 0.3}s` }}
               ></div>
             </motion.li>
@@ -182,15 +183,20 @@ const Chat = () => {
         <div ref={bottomOfChatRef} />
       </ul>
       <div className={styles.chatInputContainer}>
-        <input
+        <textarea
+          ref={inputRef}
           value={message}
           onChange={handleChange}
           onKeyPress={handleKeyPress}
           className={styles.chatInput}
           placeholder="Send Message"
+          rows={1}
         />
-        <button onClick={sendMessage} className={styles.chatSendButton}>
-          <FiSend />
+        <button 
+          onClick={sendMessage} 
+          className={`${styles.chatSendButton} ${message.trim() !== "" ? styles.chatSendButtonActive : ""}`}
+        >
+          {loading ? <div className={styles.loadingSquare}></div> : <FiArrowUp />}
         </button>
       </div>
     </div>
