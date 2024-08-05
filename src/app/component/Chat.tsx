@@ -5,6 +5,7 @@ import io from "socket.io-client";
 import { v4 as uuidv4 } from "uuid";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiArrowUp, FiSend } from "react-icons/fi";
+import ReactMarkdown from 'react-markdown';
 import styles from "./chat.module.css";
 
 const socket = io(process.env.NEXT_PUBLIC_OPENAI_URL || "");
@@ -26,41 +27,6 @@ const loaderVariants = {
   }),
 };
 
-const parseResponseText = (text: string): JSX.Element[] => {
-  const elements: JSX.Element[] = [];
-  const lines = text.split('\n');
-  
-  let currentList: JSX.Element[] = [];
-  let listType: 'ul' | 'ol' | null = null;
-
-  const addList = () => {
-    if (listType === 'ul') {
-      elements.push(<ul key={elements.length}>{currentList}</ul>);
-    } else if (listType === 'ol') {
-      elements.push(<ol key={elements.length}>{currentList}</ol>);
-    }
-    currentList = [];
-    listType = null;
-  };
-
-  lines.forEach((line, index) => {
-    if (line.startsWith('- ')) {
-      if (listType === 'ol') addList();
-      listType = 'ul';
-      currentList.push(<li key={index}>{line.substring(2)}</li>);
-    } else if (/^\d+\. /.test(line)) {
-      if (listType === 'ul') addList();
-      listType = 'ol';
-      currentList.push(<li key={index}>{line.substring(line.indexOf('.') + 2)}</li>);
-    } else {
-      if (listType) addList();
-      elements.push(<p key={index}>{line}</p>);
-    }
-  });
-
-  if (listType) addList();
-  return elements;
-};
 
 const Chat = () => {
   const [message, setMessage] = useState<string>("");
@@ -156,7 +122,9 @@ const Chat = () => {
                     {response.words.slice(0, response.visibleCount).join(" ")}
                   </motion.div>
                 ) : (
-                  <div className={styles.chatText}>{parseResponseText(item.text)}</div>
+                  <div className={styles.chatText}>
+                    <ReactMarkdown>{item.text}</ReactMarkdown>
+                  </div>
                 )}
               </div>
             </li>
@@ -192,8 +160,8 @@ const Chat = () => {
           placeholder="Send Message"
           rows={1}
         />
-        <button 
-          onClick={sendMessage} 
+        <button
+          onClick={sendMessage}
           className={`${styles.chatSendButton} ${message.trim() !== "" ? styles.chatSendButtonActive : ""}`}
         >
           {loading ? <div className={styles.loadingSquare}></div> : <FiArrowUp />}
