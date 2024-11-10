@@ -127,19 +127,21 @@
 }
 
 @keyframes blink {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0;
   }
+
   50% {
     opacity: 0.7;
   }
 }
 
 /* First and last element margins */
-.markdownContent > *:first-child {
+.markdownContent>*:first-child {
   margin-top: 0;
 }
 
-.markdownContent > *:last-child {
+.markdownContent>*:last-child {
   margin-bottom: 0;
 }
