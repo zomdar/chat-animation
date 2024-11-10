@@ -174,7 +174,7 @@
 /* Responsive design */
 @media (max-width: 640px) {
   .chatInputContainer {
-    margin: 0 24px;
+    margin: 0 16px;
     padding: 8px;
   }
 
