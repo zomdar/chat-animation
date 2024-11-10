@@ -1,0 +1,35 @@
+.chatMessage {
+  margin-bottom: 10px;
+  max-width: 100%;
+}
+
+.chatName {
+  font-size: 0.875rem;
+  color: #8e8d94;
+}
+
+.turtleChat {
+  border-radius: 7px;
+  padding: 8px;
+  margin-top: 4px;
+}
+
+.userChat {
+  background-color: #206cff;
+  color: white;
+}
+
+.systemChat {
+  background-color: #1e1f1e;
+  color: white;
+}
+
+.chatText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  line-height: 1.5em;
+}

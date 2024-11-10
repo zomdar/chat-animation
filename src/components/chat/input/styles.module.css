@@ -1,0 +1,188 @@
+.chatInputContainer {
+  display: flex;
+  align-items: flex-end;
+  background-color: #333;
+  padding: 10px;
+  border-radius: 35px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  bottom: 16px;
+  left: 16px;
+  right: 16px;
+  margin: 0 16px;
+  transition: all 0.3s ease;
+}
+
+.chatInputContainer:focus-within {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  background-color: #3a3a3a;
+}
+
+.chatInput {
+  flex-grow: 1;
+  background-color: transparent;
+  border: none;
+  color: #ccc;
+  padding: 10px;
+  border-radius: 25px;
+  outline: none;
+  font-size: 16px;
+  resize: none;
+  overflow: hidden;
+  min-height: 40px;
+  max-height: 200px;
+  transition: all 0.3s ease;
+}
+
+.chatInput:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.chatInput::placeholder {
+  color: #888;
+  transition: color 0.3s ease;
+}
+
+.chatInput:focus::placeholder {
+  color: #666;
+}
+
+.chatSendButton {
+  background-color: #555;
+  border: none;
+  color: #ccc;
+  padding: 12px;
+  margin-left: 10px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  min-width: 44px;
+  min-height: 44px;
+  position: relative;
+}
+
+.chatSendButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  background-color: #444;
+}
+
+.chatSendButton:hover:not(:disabled) {
+  background-color: #666;
+  transform: translateY(-1px);
+}
+
+.chatSendButton:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.chatSendButtonActive {
+  background-color: #206cff;
+}
+
+.chatSendButtonActive:hover:not(:disabled) {
+  background-color: #1a5ad9;
+}
+
+.sendIcon {
+  width: 20px;
+  height: 20px;
+  transition: transform 0.3s ease;
+}
+
+.chatSendButtonActive:hover .sendIcon {
+  transform: translateY(-2px);
+}
+
+.loadingContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+}
+
+.loadingSquare {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background-color: #206cff;
+  border-radius: 3px;
+  animation: squarePulse 1.5s ease-in-out infinite;
+}
+
+.loadingIcon {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  animation: spin 2s linear infinite;
+  opacity: 0.5;
+}
+
+@keyframes squarePulse {
+  0% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.3) rotate(180deg);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1) rotate(360deg);
+    opacity: 1;
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* For dark mode preference */
+@media (prefers-color-scheme: dark) {
+  .chatInputContainer {
+    background-color: #2a2a2a;
+  }
+
+  .chatInputContainer:focus-within {
+    background-color: #333;
+  }
+
+  .chatSendButtonActive {
+    background-color: #2b7fff;
+  }
+
+  .chatSendButtonActive:hover:not(:disabled) {
+    background-color: #2468d9;
+  }
+}
+
+/* Responsive design */
+@media (max-width: 640px) {
+  .chatInputContainer {
+    margin: 0 8px;
+    padding: 8px;
+  }
+
+  .chatInput {
+    font-size: 15px;
+    padding: 8px;
+  }
+
+  .chatSendButton {
+    padding: 10px;
+    min-width: 40px;
+    min-height: 40px;
+  }
+}

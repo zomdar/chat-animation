@@ -1,0 +1,39 @@
+.loadingContainer {
+  padding: 10px;
+  display: flex;
+  justify-content: center;
+}
+
+.loadingDots {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.loadingDots span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #8e8d94;
+  animation: loadingDots 1s infinite;
+}
+
+.loadingDots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.loadingDots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes loadingDots {
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

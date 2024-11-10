@@ -111,3 +111,39 @@ a {
     color-scheme: dark;
   }
 }
+
+/* Variables */
+:root {
+  --chat-max-width: 800px;
+  --chat-padding: 16px;
+  --chat-padding-small: 8px;
+  --chat-border-radius: 7px;
+  --chat-input-radius: 35px;
+  
+  /* Colors */
+  --color-primary: #206cff;
+  --color-background: #1e1f1e;
+  --color-input-bg: #333;
+  --color-text: #fff;
+  --color-text-secondary: #8e8d94;
+  --color-button: #555;
+  --color-button-hover: #666;
+  --color-button-active: #777;
+  
+  /* Animations */
+  --transition-speed: 0.3s;
+  --animation-duration: 2s;
+  
+  /* Typography */
+  --font-size-normal: 1rem;
+  --font-size-small: 0.875rem;
+  --line-height: 1.5em;
+  
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 10px;
+  --spacing-lg: 16px;
+  --spacing-xl: 20px;
+}
+

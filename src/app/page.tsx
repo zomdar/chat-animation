@@ -1,13 +1,9 @@
-import Image from "next/image";
-import styles from "./page.module.css";
-import Chat from './component/Chat'
+import { ChatWindow } from '@/components/chat/window'
 
 export default function Home() {
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <Chat />
-      </div>
+    <main className="flex min-h-screen flex-col items-center justify-between p-24">
+      <ChatWindow />
     </main>
-  );
+  )
 }
