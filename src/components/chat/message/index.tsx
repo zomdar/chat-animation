@@ -1,14 +1,17 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import ReactMarkdown from 'react-markdown';
-import type { Components } from 'react-markdown';
 import { Message, ResponseStream } from "../types";
 import { motion } from 'framer-motion';
 import styles from './styles.module.css';
 import remarkGfm from 'remark-gfm';
 
-// Updated component definition using proper types from react-markdown
-const MarkdownComponents: Partial<Components> = {
-  p: ({ children }) => (
+// Define interface for markdown component props
+interface MarkdownComponentProps {
+  children: ReactNode;
+}
+
+const MarkdownComponents = {
+  p: ({ children }: MarkdownComponentProps) => (
     <motion.p
       initial={{ opacity: 0, y: 5 }}
       animate={{ opacity: 1, y: 0 }}
@@ -19,28 +22,7 @@ const MarkdownComponents: Partial<Components> = {
     </motion.p>
   ),
   
-  // Properly typed code component
-  code({ node, inline, className, children, ...props }) {
-    const match = /language-(\w+)/.exec(className || '');
-    return inline ? (
-      <code className={styles.inlineCode} {...props}>
-        {children}
-      </code>
-    ) : (
-      <motion.pre
-        initial={{ opacity: 0, scale: 0.98 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.2 }}
-        className={styles.codeBlock}
-      >
-        <code className={match ? styles[`language-${match[1]}`] : ''} {...props}>
-          {String(children).replace(/\n$/, '')}
-        </code>
-      </motion.pre>
-    );
-  },
-  
-  blockquote: ({ children }) => (
+  blockquote: ({ children }: MarkdownComponentProps) => (
     <motion.blockquote
       initial={{ opacity: 0, x: -10 }}
       animate={{ opacity: 1, x: 0 }}
@@ -51,7 +33,7 @@ const MarkdownComponents: Partial<Components> = {
     </motion.blockquote>
   ),
   
-  h1: ({ children }) => (
+  h1: ({ children }: MarkdownComponentProps) => (
     <motion.h1
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -62,7 +44,7 @@ const MarkdownComponents: Partial<Components> = {
     </motion.h1>
   ),
   
-  h2: ({ children }) => (
+  h2: ({ children }: MarkdownComponentProps) => (
     <motion.h2
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -73,7 +55,7 @@ const MarkdownComponents: Partial<Components> = {
     </motion.h2>
   ),
   
-  h3: ({ children }) => (
+  h3: ({ children }: MarkdownComponentProps) => (
     <motion.h3
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -84,23 +66,23 @@ const MarkdownComponents: Partial<Components> = {
     </motion.h3>
   ),
 
-  strong: ({ children }) => (
+  strong: ({ children }: MarkdownComponentProps) => (
     <strong className={styles.strong}>{children}</strong>
   ),
 
-  em: ({ children }) => (
+  em: ({ children }: MarkdownComponentProps) => (
     <em className={styles.emphasis}>{children}</em>
   ),
 
-  ul: ({ children }) => (
+  ul: ({ children }: MarkdownComponentProps) => (
     <ul className={styles.unorderedList}>{children}</ul>
   ),
 
-  ol: ({ children }) => (
+  ol: ({ children }: MarkdownComponentProps) => (
     <ol className={styles.orderedList}>{children}</ol>
   ),
 
-  li: ({ children }) => (
+  li: ({ children }: MarkdownComponentProps) => (
     <li className={styles.listItem}>{children}</li>
   ),
 };
@@ -140,7 +122,6 @@ export const ChatMessage = ({
           {response ? (
             <div className={styles.streamingResponse}>
               <ReactMarkdown 
-                components={MarkdownComponents}
                 remarkPlugins={[remarkGfm]}
               >
                 {response.words.slice(0, response.visibleCount).join(" ")}
@@ -149,7 +130,6 @@ export const ChatMessage = ({
             </div>
           ) : (
             <ReactMarkdown 
-              components={MarkdownComponents}
               remarkPlugins={[remarkGfm]}
             >
               {message.text}

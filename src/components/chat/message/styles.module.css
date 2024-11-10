@@ -32,26 +32,11 @@
   line-height: 1.4;
 }
 
-/* Paragraphs */
-.paragraph {
-  margin: 0.5rem 0;
-}
-
-.paragraph:first-child {
-  margin-top: 0;
-}
-
-.paragraph:last-child {
-  margin-bottom: 0;
-}
-
 /* Headings */
 .heading1 {
   font-size: 1.25rem;
   font-weight: 600;
   margin: 0.75rem 0 0.5rem 0;
-  padding-bottom: 0.25rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .heading2 {
@@ -70,89 +55,19 @@
 .unorderedList,
 .orderedList {
   margin: 0.375rem 0;
-  padding-left: 0; /* Remove default padding */
+  padding-left: 1.5rem;
 }
 
 .unorderedList {
-  list-style: none; /* Remove default bullets */
+  list-style-type: disc;
 }
 
 .orderedList {
-  list-style: none; /* Remove default numbers */
-  counter-reset: item; /* Reset counter for custom numbering */
+  list-style-type: decimal;
 }
 
 .listItem {
   margin: 0.125rem 0;
-  padding-left: 1.5rem; /* Consistent indentation */
-  position: relative; /* For absolute positioning of bullets/numbers */
-}
-
-/* Custom bullets for unordered lists */
-.unorderedList .listItem::before {
-  content: "•";
-  position: absolute;
-  left: 0.5rem;
-  color: currentColor;
-}
-
-/* Custom numbers for ordered lists */
-.orderedList .listItem {
-  counter-increment: item;
-}
-
-.orderedList .listItem::before {
-  content: counter(item) ".";
-  position: absolute;
-  left: 0;
-  width: 1.25rem;
-  text-align: right;
-}
-
-/* Handle nested lists */
-.unorderedList .unorderedList .listItem::before {
-  content: "◦"; /* Different bullet for nested lists */
-}
-
-.orderedList .orderedList {
-  counter-reset: subitem;
-}
-
-.orderedList .orderedList .listItem {
-  counter-increment: subitem;
-}
-
-.orderedList .orderedList .listItem::before {
-  content: counter(subitem, lower-alpha) ".";
-}
-
-/* Prevent text from wrapping under bullets/numbers */
-.listItem > * {
-  display: block;
-}
-
-/* Code */
-.inlineCode {
-  font-family: monospace;
-  background-color: rgba(0, 0, 0, 0.2);
-  padding: 0.125rem 0.25rem;
-  border-radius: 0.25rem;
-  font-size: 0.875rem;
-}
-
-.codeBlock {
-  background-color: rgba(0, 0, 0, 0.2);
-  padding: 0.75rem;
-  border-radius: 0.375rem;
-  margin: 0.5rem 0;
-  overflow-x: auto;
-}
-
-.codeBlock code {
-  font-family: monospace;
-  font-size: 0.875rem;
-  display: block;
-  white-space: pre;
 }
 
 /* Blockquotes */
@@ -162,18 +77,6 @@
   margin: 0.5rem 0;
   font-style: italic;
   color: rgba(255, 255, 255, 0.8);
-}
-
-/* Links */
-.link {
-  color: #60a5fa;
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 2px;
-}
-
-.link:hover {
-  color: #93c5fd;
 }
 
 /* Strong and Emphasis */
@@ -218,31 +121,4 @@
 
 .markdownContent > *:last-child {
   margin-bottom: 0;
-}
-
-/* Adjacent element spacing */
-.heading1 + p,
-.heading2 + p,
-.heading3 + p {
-  margin-top: 0.25rem;
-}
-
-.paragraph + .unorderedList,
-.paragraph + .orderedList {
-  margin-top: 0.25rem;
-}
-
-/* Responsive adjustments */
-@media (max-width: 640px) {
-  .messageContent {
-    padding: 0.625rem;
-  }
-  
-  .markdownContent {
-    font-size: 0.9375rem;
-  }
-  
-  .codeBlock {
-    padding: 0.625rem;
-  }
 }
