@@ -6,6 +6,12 @@ const inter = Inter({ subsets: ['latin'] })
 export const metadata = {
   title: 'Chat Application',
   description: 'Real-time chat application with AI',
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: 'no',
+  },
 }
 
 export default function RootLayout({
