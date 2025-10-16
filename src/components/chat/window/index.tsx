@@ -205,7 +205,7 @@ export const ChatWindow = () => {
                   Franklin
                 </h1>
                 <p className="text-[11px] text-neutral-500 sm:text-xs">
-                  Powered by Vercel AI SDK
+                  Your friendly neighborhood AI assistant
                 </p>
               </div>
 
