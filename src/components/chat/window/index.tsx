@@ -444,7 +444,7 @@ export const ChatWindow = () => {
             <header className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4 shadow-lg shadow-black/40 backdrop-blur sm:flex-row sm:items-center sm:justify-between sm:gap-3 sm:px-5">
               <div className="space-y-1 text-center sm:text-left">
                 <h1 className="text-xs font-semibold text-neutral-400 sm:text-sm">
-                  Hope you're having an awesome day!
+                  Hope you&apos;re having an awesome day!
                 </h1>
                 <p className="text-[11px] text-neutral-500 sm:text-xs">
                   Your friendly neighborhood AI assistant
