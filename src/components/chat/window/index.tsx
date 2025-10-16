@@ -1,8 +1,8 @@
 'use client';
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { useChat } from "@ai-sdk/react";
-import type { UIMessage, UIMessagePart } from "ai";
+import type { ChatStatus, UIMessage, UIMessagePart } from "ai";
 import { DefaultChatTransport } from "ai";
 import {
   Conversation,
@@ -21,6 +21,7 @@ import {
   PromptInputAttachments,
   PromptInputAttachment,
   PromptInputBody,
+  PromptInputButton,
   PromptInputMessage,
   PromptInputModelSelect,
   PromptInputModelSelectContent,
@@ -28,18 +29,40 @@ import {
   PromptInputModelSelectTrigger,
   PromptInputModelSelectValue,
   PromptInputProvider,
+  PromptInputSpeechButton,
   PromptInputSubmit,
   PromptInputTextarea,
   PromptInputToolbar,
   PromptInputTools,
   Response,
+  Source,
+  Sources,
+  SourcesContent,
+  SourcesTrigger,
   Suggestion,
   Suggestions,
   usePromptInputController,
 } from "@/components/ai-elements";
 import { Button } from "@/components/ui/button";
+import { GlobeIcon } from "lucide-react";
 
-const INITIAL_MESSAGES: UIMessage[] = [
+type SearchSourceMetadata = {
+  id: string;
+  rank: number;
+  title: string;
+  url: string;
+  snippet: string;
+};
+
+type ChatMessageMetadata = {
+  model?: string;
+  sources?: SearchSourceMetadata[];
+  searchNote?: string;
+};
+
+type ChatMessage = UIMessage<ChatMessageMetadata>;
+
+const INITIAL_MESSAGES: ChatMessage[] = [
   {
     id: "welcome-message",
     role: "assistant",
@@ -72,7 +95,7 @@ const getPartText = (part: UIMessagePart<any, any>): string => {
   return "";
 };
 
-const getMessageText = (message: UIMessage): string => {
+const getMessageText = (message: ChatMessage): string => {
   if (!Array.isArray(message.parts)) {
     return "";
   }
@@ -82,6 +105,20 @@ const getMessageText = (message: UIMessage): string => {
     .filter((text) => Boolean(text.trim()))
     .join("\n\n");
 };
+
+const MODEL_OPTIONS = [
+  { id: "gpt-4o-mini", name: "GPT-4o mini" },
+  { id: "gpt-4.1-mini", name: "GPT-4.1 mini" },
+  { id: "gpt-4", name: "GPT-4" },
+  { id: "gpt-3.5-turbo", name: "GPT-3.5 Turbo" },
+  { id: "claude-2", name: "Claude 2" },
+  { id: "claude-instant", name: "Claude Instant" },
+  { id: "palm-2", name: "PaLM 2" },
+  { id: "llama-2-70b", name: "Llama 2 70B" },
+  { id: "llama-2-13b", name: "Llama 2 13B" },
+  { id: "cohere-command", name: "Command" },
+  { id: "mistral-7b", name: "Mistral 7B" },
+];
 
 const QuickSuggestions = ({
   items,
@@ -109,15 +146,136 @@ const QuickSuggestions = ({
   );
 };
 
+type ChatInputBarProps = {
+  isStreaming: boolean;
+  onSubmit: (payload: PromptInputMessage) => void | Promise<void>;
+  status: ChatStatus;
+  model: string;
+  onModelChange: (model: string) => void;
+  useWebSearch: boolean;
+  onToggleWebSearch: () => void;
+};
+
+const ChatInputBar = ({
+  isStreaming,
+  onSubmit,
+  status,
+  model,
+  onModelChange,
+  useWebSearch,
+  onToggleWebSearch,
+}: ChatInputBarProps) => {
+  const controller = usePromptInputController();
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+
+  const hasMessage =
+    controller.textInput.value.trim().length > 0 ||
+    controller.attachments.files.length > 0;
+
+  return (
+    <PromptInput
+      className="chat-input-form w-full"
+      globalDrop
+      maxFiles={4}
+      multiple
+      onSubmit={onSubmit}
+    >
+      <PromptInputAttachments>
+        {(attachment) => (
+          <PromptInputAttachment
+            key={attachment.id}
+            className="border-white/10 bg-white/5"
+            data={attachment}
+          />
+        )}
+      </PromptInputAttachments>
+
+      <PromptInputBody>
+        <PromptInputTextarea
+          className="min-h-12 bg-transparent text-sm text-white placeholder:text-neutral-500 sm:min-h-14"
+          disabled={isStreaming}
+          placeholder={
+            isStreaming
+              ? "Waiting for Franklin to respond…"
+              : "What would you like to know?"
+          }
+          ref={textareaRef}
+        />
+      </PromptInputBody>
+
+      <PromptInputToolbar className="flex items-center gap-2 border-none bg-transparent px-1 py-2 sm:px-2">
+        <PromptInputTools className="flex items-center gap-1 text-neutral-400">
+          <PromptInputActionMenu>
+            <PromptInputActionMenuTrigger
+              aria-label="Open prompt tools"
+              className="rounded-full bg-white/5 text-neutral-300 hover:bg-white/10"
+            />
+            <PromptInputActionMenuContent className="border border-white/10 bg-[#0f0f0f] text-sm">
+              <PromptInputActionAddAttachments />
+              <PromptInputActionMenuItem disabled>
+                More tools coming soon
+              </PromptInputActionMenuItem>
+            </PromptInputActionMenuContent>
+          </PromptInputActionMenu>
+
+          <PromptInputSpeechButton
+            aria-label="Start voice input"
+            className="rounded-full text-neutral-300 hover:bg-white/10"
+            onTranscriptionChange={controller.textInput.setInput}
+            textareaRef={textareaRef}
+            variant="ghost"
+          />
+
+          <PromptInputButton
+            aria-pressed={useWebSearch}
+            onClick={onToggleWebSearch}
+            variant={useWebSearch ? "default" : "ghost"}
+          >
+            <GlobeIcon size={16} />
+            <span>Search</span>
+          </PromptInputButton>
+
+          <PromptInputModelSelect onValueChange={onModelChange} value={model}>
+            <PromptInputModelSelectTrigger
+              aria-label="Select model"
+              className="w-auto rounded-full border border-white/10 bg-transparent px-3 text-xs uppercase tracking-wide text-neutral-400 hover:bg-white/5"
+            >
+              <PromptInputModelSelectValue placeholder="Select a model" />
+            </PromptInputModelSelectTrigger>
+            <PromptInputModelSelectContent className="max-h-60 border border-white/10 bg-[#0f0f0f]">
+              {MODEL_OPTIONS.map((option) => (
+                <PromptInputModelSelectItem key={option.id} value={option.id}>
+                  {option.name}
+                </PromptInputModelSelectItem>
+              ))}
+            </PromptInputModelSelectContent>
+          </PromptInputModelSelect>
+        </PromptInputTools>
+
+        <PromptInputSubmit
+          className="ml-auto rounded-full bg-white text-black hover:bg-white/90"
+          disabled={!hasMessage || isStreaming}
+          status={status}
+          variant="default"
+        />
+      </PromptInputToolbar>
+    </PromptInput>
+  );
+};
+
 export const ChatWindow = () => {
   const [showSuggestions, setShowSuggestions] = useState(true);
+  const [selectedModel, setSelectedModel] = useState(
+    () => MODEL_OPTIONS[0]?.id ?? ""
+  );
+  const [useWebSearch, setUseWebSearch] = useState(false);
 
   const transport = useMemo(
-    () => new DefaultChatTransport<UIMessage>({ api: "/api/chat" }),
+    () => new DefaultChatTransport<ChatMessage>({ api: "/api/chat" }),
     []
   );
 
-  const { messages, sendMessage, status, setMessages, error } = useChat({
+  const { messages, sendMessage, status, setMessages, error } = useChat<ChatMessage>({
     transport,
     messages: INITIAL_MESSAGES,
   });
@@ -130,16 +288,31 @@ export const ChatWindow = () => {
 
   const sendUserMessage = useCallback(
     async (payload: PromptInputMessage) => {
-      const trimmed = payload.text?.trim();
+      if (isStreaming) {
+        return;
+      }
 
-      if (!trimmed || isStreaming) {
+      const trimmed = payload.text?.trim();
+      const hasText = Boolean(trimmed);
+      const hasFiles = Boolean(payload.files?.length);
+
+      if (!hasText && !hasFiles) {
         return;
       }
 
       setShowSuggestions(false);
-      await sendMessage({ text: trimmed });
+      const messagePayload = hasText
+        ? { text: trimmed!, ...(hasFiles ? { files: payload.files } : {}) }
+        : { files: payload.files! };
+
+      await sendMessage(messagePayload, {
+        body: {
+          model: selectedModel,
+          useWebSearch,
+        },
+      });
     },
-    [isStreaming, sendMessage]
+    [isStreaming, sendMessage, selectedModel, useWebSearch]
   );
 
   const suggestions = useMemo(
@@ -242,6 +415,16 @@ export const ChatWindow = () => {
                     messages.map((message) => {
                       const isUser = message.role === "user";
                       const text = getMessageText(message);
+                      const metadata = message.metadata;
+                      const sources = Array.isArray(metadata?.sources)
+                        ? metadata.sources.filter((source) =>
+                            Boolean(source.url)
+                          )
+                        : [];
+                      const searchNote =
+                        typeof metadata?.searchNote === "string"
+                          ? metadata.searchNote
+                          : null;
 
                       if (!text) {
                         return null;
@@ -257,9 +440,32 @@ export const ChatWindow = () => {
                               {text}
                             </MessageContent>
                           ) : (
-                            <Response className="max-w-full whitespace-pre-wrap text-[15px] leading-relaxed text-neutral-200 sm:text-base">
-                              {text}
-                            </Response>
+                            <div className="flex max-w-full flex-col gap-3">
+                              <Response className="max-w-full whitespace-pre-wrap text-[15px] leading-relaxed text-neutral-200 sm:text-base">
+                                {text}
+                              </Response>
+                              {sources.length > 0 ? (
+                                <Sources>
+                                  <SourcesTrigger count={sources.length} />
+                                  <SourcesContent>
+                                    {sources.map((source) => (
+                                      <Source
+                                        description={source.snippet}
+                                        href={source.url}
+                                        key={source.id}
+                                        rank={source.rank}
+                                        title={source.title}
+                                      />
+                                    ))}
+                                  </SourcesContent>
+                                </Sources>
+                              ) : null}
+                              {searchNote ? (
+                                <p className="text-xs text-neutral-500">
+                                  {searchNote}
+                                </p>
+                              ) : null}
+                            </div>
                           )}
                         </Message>
                       );
@@ -296,70 +502,15 @@ export const ChatWindow = () => {
 
         <div className="sticky bottom-0 w-full border-white/10 bg-[#050505]/95 px-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-3 sm:px-6 sm:pb-[calc(env(safe-area-inset-bottom)+1.5rem)] sm:pt-4 md:px-8">
           <div className="mx-auto w-full max-w-[400px] sm:max-w-[500px] md:max-w-3xl md:w-[720px]">
-            <PromptInput className="chat-input-form w-full" maxFiles={4} onSubmit={sendUserMessage}>
-              <PromptInputAttachments>
-                {(attachment) => (
-                  <PromptInputAttachment
-                    key={attachment.id}
-                    data={attachment}
-                    className="border-white/10 bg-white/5"
-                  />
-                )}
-              </PromptInputAttachments>
-
-              <PromptInputBody>
-                <PromptInputTextarea
-                  disabled={isStreaming}
-                  placeholder={
-                    isStreaming
-                      ? "Waiting for Franklin to respond…"
-                      : "What would you like to know?"
-                  }
-                  className="min-h-12 bg-transparent text-sm text-white placeholder:text-neutral-500 sm:min-h-14"
-                />
-              </PromptInputBody>
-
-              <PromptInputToolbar className="flex items-center gap-2 border-none bg-transparent px-1 py-2 sm:px-2">
-                <PromptInputTools className="flex items-center gap-1 text-neutral-400">
-                  <PromptInputActionMenu>
-                    <PromptInputActionMenuTrigger
-                      aria-label="Open prompt tools"
-                      className="rounded-full bg-white/5 text-neutral-300 hover:bg-white/10"
-                    />
-                    <PromptInputActionMenuContent className="border border-white/10 bg-[#0f0f0f] text-sm">
-                      <PromptInputActionAddAttachments />
-                      <PromptInputActionMenuItem disabled>
-                        More tools coming soon
-                      </PromptInputActionMenuItem>
-                    </PromptInputActionMenuContent>
-                  </PromptInputActionMenu>
-
-                  <PromptInputModelSelect defaultValue="gpt-4o-mini">
-                    <PromptInputModelSelectTrigger
-                      aria-label="Select model"
-                      className="w-auto rounded-full border border-white/10 bg-transparent px-3 text-xs uppercase tracking-wide text-neutral-400 hover:bg-white/5"
-                    >
-                      <PromptInputModelSelectValue placeholder="Select a model" />
-                    </PromptInputModelSelectTrigger>
-                    <PromptInputModelSelectContent className="border border-white/10 bg-[#0f0f0f]">
-                      <PromptInputModelSelectItem value="gpt-4o-mini">
-                        GPT-4o mini
-                      </PromptInputModelSelectItem>
-                      <PromptInputModelSelectItem value="gpt-4.1-mini">
-                        GPT-4.1 mini
-                      </PromptInputModelSelectItem>
-                    </PromptInputModelSelectContent>
-                  </PromptInputModelSelect>
-                </PromptInputTools>
-
-                <PromptInputSubmit
-                  className="ml-auto rounded-full bg-white text-black hover:bg-white/90"
-                  disabled={isStreaming}
-                  status={status}
-                  variant="default"
-                />
-              </PromptInputToolbar>
-            </PromptInput>
+            <ChatInputBar
+              isStreaming={isStreaming}
+              onSubmit={sendUserMessage}
+              status={status}
+              model={selectedModel}
+              onModelChange={setSelectedModel}
+              useWebSearch={useWebSearch}
+              onToggleWebSearch={() => setUseWebSearch((prev) => !prev)}
+            />
           </div>
         </div>
       </div>
