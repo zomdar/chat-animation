@@ -1,6 +1,6 @@
 import { createOpenAI } from "@ai-sdk/openai";
-import type { CoreMessage } from "ai";
-import { convertToCoreMessages, streamText } from "ai";
+import type { CoreMessage, UIMessage } from "ai";
+import { convertToCoreMessages, safeValidateUIMessages, streamText } from "ai";
 
 export const runtime = "edge";
 
@@ -9,14 +9,6 @@ type RequestPayload = {
   model?: unknown;
   useWebSearch?: unknown;
 };
-
-type RawMessage =
-  | {
-      role?: unknown;
-      content?: unknown;
-      parts?: unknown;
-    }
-  | undefined;
 
 type SearchResult = {
   title: string;
@@ -49,7 +41,7 @@ const OPENAI_MODEL_ALIASES: Record<string, string> = {
 
 const DEFAULT_MODEL = "gpt-4o-mini";
 
-const extractText = (message: RawMessage): string => {
+const extractText = (message: UIMessage): string => {
   if (!message || typeof message !== "object") {
     return "";
   }
@@ -207,16 +199,25 @@ export async function POST(request: Request) {
     return new Response("Invalid request body.", { status: 400 });
   }
 
-  const messages = Array.isArray(parsedBody.messages)
-    ? (parsedBody.messages as RawMessage[])
+  const rawMessages = Array.isArray(parsedBody.messages)
+    ? parsedBody.messages
     : [];
+
+  const validated = await safeValidateUIMessages({ messages: rawMessages });
+
+  if (!validated.success) {
+    console.error("Invalid messages payload:", validated.error);
+    return new Response("Invalid chat messages payload.", { status: 400 });
+  }
+
+  const messages = validated.data;
   const { resolved: resolvedModel, fallbackNote } = resolveModel(
     parsedBody.model
   );
   const useWebSearch = Boolean(parsedBody.useWebSearch);
   const serpApiKey = process.env.SERP_API_KEY ?? "";
 
-  const coreMessages = convertToCoreMessages(messages ?? []);
+  const coreMessages = convertToCoreMessages(messages);
 
   const augmentedMessages: CoreMessage[] = [...coreMessages];
   const responseMetadata: ResponseMetadata = {
@@ -233,11 +234,7 @@ export async function POST(request: Request) {
   if (useWebSearch && messages.length > 0) {
     const lastUserMessageIndex = (() => {
       for (let i = messages.length - 1; i >= 0; i -= 1) {
-        if (
-          messages[i] &&
-          typeof messages[i] === "object" &&
-          (messages[i] as { role?: unknown }).role === "user"
-        ) {
+        if (messages[i]?.role === "user") {
           return i;
         }
       }
