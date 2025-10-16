@@ -294,7 +294,7 @@ export const ChatWindow = () => {
           </div>
         </div>
 
-        <div className="sticky bottom-0 w-full border-t border-white/10 bg-[#050505]/95 px-3 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-3 sm:px-6 sm:pb-[calc(env(safe-area-inset-bottom)+1.5rem)] sm:pt-4 md:px-8">
+        <div className="sticky bottom-0 w-full border-white/10 bg-[#050505]/95 px-3 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-3 sm:px-6 sm:pb-[calc(env(safe-area-inset-bottom)+1.5rem)] sm:pt-4 md:px-8">
           <div className="mx-auto w-full max-w-[400px] sm:max-w-[500px] md:max-w-3xl md:w-[720px]">
             <PromptInput
               className="w-full rounded-2xl border border-white/10 bg-white/[0.04] p-3 shadow-lg"
