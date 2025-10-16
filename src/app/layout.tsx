@@ -1,4 +1,8 @@
 import './globals.css'
+import { Inter, Esteban } from 'next/font/google'
+
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
+const esteban = Esteban({ subsets: ['latin'], weight: '400', variable: '--font-esteban' })
 
 export const metadata = {
   title: 'Chat Application',
@@ -18,8 +22,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body>{children}</body>
+    <html lang="en" className={`${inter.variable} ${esteban.variable}`}>
+      <body className="font-sans">{children}</body>
     </html>
   )
 }

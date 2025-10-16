@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useChat } from "@ai-sdk/react";
 import type { ChatStatus, UIMessage, UIMessagePart } from "ai";
 import { DefaultChatTransport } from "ai";
@@ -45,6 +45,7 @@ import {
 } from "@/components/ai-elements";
 import { Button } from "@/components/ui/button";
 import { GlobeIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 type SearchSourceMetadata = {
   id: string;
@@ -62,18 +63,7 @@ type ChatMessageMetadata = {
 
 type ChatMessage = UIMessage<ChatMessageMetadata>;
 
-const INITIAL_MESSAGES: ChatMessage[] = [
-  {
-    id: "welcome-message",
-    role: "assistant",
-    parts: [
-      {
-        type: "text",
-        text: "Hello, I'm Franklin. Ask me anything to get started!",
-      },
-    ],
-  },
-];
+const INITIAL_MESSAGES: ChatMessage[] = [];
 
 const ALLOWED_PARTS = new Set(["text", "reasoning", "tool-result"]);
 
@@ -146,6 +136,65 @@ const QuickSuggestions = ({
   );
 };
 
+type LandingScreenProps = {
+  isStreaming: boolean;
+  onSubmit: (payload: PromptInputMessage) => void | Promise<void>;
+  status: ChatStatus;
+  useWebSearch: boolean;
+  onToggleWebSearch: () => void;
+  suggestions: string[];
+  model: string;
+  onModelChange: (model: string) => void;
+};
+
+const LandingScreen = ({
+  isStreaming,
+  onSubmit,
+  status,
+  useWebSearch,
+  onToggleWebSearch,
+  suggestions,
+  model,
+  onModelChange,
+}: LandingScreenProps) => {
+  const controller = usePromptInputController();
+
+  return (
+    <div className="flex min-h-screen flex-col items-center justify-center bg-[#050505] px-4 py-10 text-white">
+      <div className="max-w-3xl text-center">
+        <h1 className="font-esteban text-3xl font-semibold text-white/80 sm:text-4xl">
+          What would you like to know?
+        </h1>
+      </div>
+      <div className="mt-10 w-full max-w-2xl">
+          <ChatInputBar
+            formClassName="bg-transparent"
+            isStreaming={isStreaming}
+            model={model}
+            onModelChange={onModelChange}
+            onSubmit={onSubmit}
+            status={status}
+            useWebSearch={useWebSearch}
+            onToggleWebSearch={onToggleWebSearch}
+          />
+      </div>
+
+      <div className="mt-8 flex max-w-3xl flex-wrap justify-center gap-x-4 gap-y-3 text-sm text-neutral-500">
+        {suggestions.map((suggestion) => (
+          <button
+            key={suggestion}
+            className="transition-colors hover:text-white"
+            onClick={() => controller.textInput.setInput(suggestion)}
+            type="button"
+          >
+            {suggestion}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 type ChatInputBarProps = {
   isStreaming: boolean;
   onSubmit: (payload: PromptInputMessage) => void | Promise<void>;
@@ -154,6 +203,7 @@ type ChatInputBarProps = {
   onModelChange: (model: string) => void;
   useWebSearch: boolean;
   onToggleWebSearch: () => void;
+  formClassName?: string;
 };
 
 const ChatInputBar = ({
@@ -164,6 +214,7 @@ const ChatInputBar = ({
   onModelChange,
   useWebSearch,
   onToggleWebSearch,
+  formClassName,
 }: ChatInputBarProps) => {
   const controller = usePromptInputController();
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -174,7 +225,7 @@ const ChatInputBar = ({
 
   return (
     <PromptInput
-      className="chat-input-form w-full"
+      className={cn("chat-input-form w-full", formClassName)}
       globalDrop
       maxFiles={4}
       multiple
@@ -269,6 +320,7 @@ export const ChatWindow = () => {
     () => MODEL_OPTIONS[0]?.id ?? ""
   );
   const [useWebSearch, setUseWebSearch] = useState(false);
+  const [hasStarted, setHasStarted] = useState(false);
 
   const transport = useMemo(
     () => new DefaultChatTransport<ChatMessage>({ api: "/api/chat" }),
@@ -279,6 +331,12 @@ export const ChatWindow = () => {
     transport,
     messages: INITIAL_MESSAGES,
   });
+
+  useEffect(() => {
+    if (messages.some((message) => message.role === "user")) {
+      setHasStarted(true);
+    }
+  }, [messages]);
 
   const isStreaming = status === "streaming" || status === "submitted";
   const hasUserMessages = useMemo(
@@ -301,6 +359,7 @@ export const ChatWindow = () => {
       }
 
       setShowSuggestions(false);
+      setHasStarted(true);
       const messagePayload = hasText
         ? { text: trimmed!, ...(hasFiles ? { files: payload.files } : {}) }
         : { files: payload.files! };
@@ -317,9 +376,11 @@ export const ChatWindow = () => {
 
   const suggestions = useMemo(
     () => [
-      "Summarize the conversation so far in three bullet points.",
-      "What are the next steps I should take based on this chat?",
-      "Explain the main concept we just discussed in simple terms.",
+      "Plan a healthy dinner for tonight",
+      "Summarize today's top news stories",
+      "Draft a polite follow-up email",
+      "Help me budget for next month",
+      "Recommend a weekend getaway",
     ],
     []
   );
@@ -344,13 +405,9 @@ export const ChatWindow = () => {
         : "bg-neutral-500/60";
 
   const handleClearHistory = useCallback(() => {
-    setMessages(
-      INITIAL_MESSAGES.map((message) => ({
-        ...message,
-        parts: Array.isArray(message.parts) ? [...message.parts] : [],
-      }))
-    );
+    setMessages([]);
     setShowSuggestions(true);
+    setHasStarted(false);
   }, [setMessages]);
 
   const lastMessage = messages[messages.length - 1];
@@ -369,13 +426,25 @@ export const ChatWindow = () => {
 
   return (
     <PromptInputProvider>
-      <div className="flex min-h-screen flex-col bg-[#050505] text-neutral-100">
+      {!hasStarted ? (
+        <LandingScreen
+          isStreaming={isStreaming}
+          onSubmit={sendUserMessage}
+          status={status}
+          suggestions={suggestions}
+          model={selectedModel}
+          onModelChange={setSelectedModel}
+          useWebSearch={useWebSearch}
+          onToggleWebSearch={() => setUseWebSearch((prev) => !prev)}
+        />
+      ) : (
+        <div className="flex min-h-screen flex-col bg-[#050505] text-neutral-100">
         <div className="flex-1 px-4 py-4 sm:px-6 sm:py-6 md:px-8">
           <div className="mx-auto flex h-full w-full max-w-[400px] flex-col gap-6 sm:max-w-[500px] md:max-w-3xl md:w-[720px]">
             <header className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4 shadow-lg shadow-black/40 backdrop-blur sm:flex-row sm:items-center sm:justify-between sm:gap-3 sm:px-5">
               <div className="space-y-1 text-center sm:text-left">
-                <h1 className="text-xs font-semibold uppercase tracking-[0.25em] text-neutral-400 sm:text-sm">
-                  Franklin
+                <h1 className="text-xs font-semibold text-neutral-400 sm:text-sm">
+                  Hope you're having an awesome day!
                 </h1>
                 <p className="text-[11px] text-neutral-500 sm:text-xs">
                   Your friendly neighborhood AI assistant
@@ -514,6 +583,7 @@ export const ChatWindow = () => {
           </div>
         </div>
       </div>
+      )}
     </PromptInputProvider>
   );
 };

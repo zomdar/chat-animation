@@ -50,7 +50,8 @@ module.exports = {
         sm: "calc(var(--radius) - 8px)",
       },
       fontFamily: {
-        sans: ["Inter", ...fontFamily.sans],
+        sans: ["var(--font-inter)", ...fontFamily.sans],
+        esteban: ["var(--font-esteban)", ...fontFamily.serif],
       },
       keyframes: {
         "accordion-down": {
