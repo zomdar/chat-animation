@@ -296,11 +296,7 @@ export const ChatWindow = () => {
 
         <div className="sticky bottom-0 w-full border-white/10 bg-[#050505]/95 px-3 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-3 sm:px-6 sm:pb-[calc(env(safe-area-inset-bottom)+1.5rem)] sm:pt-4 md:px-8">
           <div className="mx-auto w-full max-w-[400px] sm:max-w-[500px] md:max-w-3xl md:w-[720px]">
-            <PromptInput
-              className="w-full rounded-2xl border border-white/10 bg-white/[0.04] p-3 shadow-lg"
-              maxFiles={4}
-              onSubmit={sendUserMessage}
-            >
+            <PromptInput className="chat-input-form w-full" maxFiles={4} onSubmit={sendUserMessage}>
               <PromptInputAttachments>
                 {(attachment) => (
                   <PromptInputAttachment
@@ -323,7 +319,7 @@ export const ChatWindow = () => {
                 />
               </PromptInputBody>
 
-              <PromptInputToolbar className="flex items-center gap-2 border-none bg-transparent px-1 pb-1 pt-2 sm:px-2">
+              <PromptInputToolbar className="flex items-center gap-2 border-none bg-transparent px-1 py-2 sm:px-2">
                 <PromptInputTools className="flex items-center gap-1 text-neutral-400">
                   <PromptInputActionMenu>
                     <PromptInputActionMenuTrigger

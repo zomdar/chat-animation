@@ -41,3 +41,21 @@
     @apply text-foreground underline-offset-4 transition hover:underline;
   }
 }
+
+@layer components {
+  .chat-input-form [data-slot="input-group"] {
+    @apply rounded-2xl border border-white/10 bg-[#101010] px-3 shadow-none transition-colors;
+  }
+
+  .chat-input-form [data-slot="input-group"]:has(textarea:disabled) {
+    @apply opacity-70;
+  }
+
+  .chat-input-form textarea[data-slot="input-group-control"] {
+    @apply text-sm text-white placeholder:text-neutral-500;
+  }
+
+  .chat-input-form [data-slot="input-group-addon"] {
+    @apply text-neutral-400;
+  }
+}
