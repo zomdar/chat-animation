@@ -197,7 +197,7 @@ export const ChatWindow = () => {
   return (
     <PromptInputProvider>
       <div className="flex min-h-screen flex-col bg-[#050505] text-neutral-100">
-        <div className="flex-1 px-3 py-4 sm:px-6 sm:py-6 md:px-8">
+        <div className="flex-1 px-4 py-4 sm:px-6 sm:py-6 md:px-8">
           <div className="mx-auto flex h-full w-full max-w-[400px] flex-col gap-6 sm:max-w-[500px] md:max-w-3xl md:w-[720px]">
             <header className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4 shadow-lg shadow-black/40 backdrop-blur sm:flex-row sm:items-center sm:justify-between sm:gap-3 sm:px-5">
               <div className="space-y-1 text-center sm:text-left">
@@ -294,7 +294,7 @@ export const ChatWindow = () => {
           </div>
         </div>
 
-        <div className="sticky bottom-0 w-full border-white/10 bg-[#050505]/95 px-3 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-3 sm:px-6 sm:pb-[calc(env(safe-area-inset-bottom)+1.5rem)] sm:pt-4 md:px-8">
+        <div className="sticky bottom-0 w-full border-white/10 bg-[#050505]/95 px-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-3 sm:px-6 sm:pb-[calc(env(safe-area-inset-bottom)+1.5rem)] sm:pt-4 md:px-8">
           <div className="mx-auto w-full max-w-[400px] sm:max-w-[500px] md:max-w-3xl md:w-[720px]">
             <PromptInput className="chat-input-form w-full" maxFiles={4} onSubmit={sendUserMessage}>
               <PromptInputAttachments>
