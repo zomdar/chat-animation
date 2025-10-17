@@ -46,6 +46,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { GlobeIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useUserLocationTime } from "@/hooks/use-user-location-time";
 
 type SearchSourceMetadata = {
   id: string;
@@ -145,6 +146,8 @@ type LandingScreenProps = {
   suggestions: string[];
   model: string;
   onModelChange: (model: string) => void;
+  location: string;
+  dateTime: string;
 };
 
 const LandingScreen = ({
@@ -156,6 +159,8 @@ const LandingScreen = ({
   suggestions,
   model,
   onModelChange,
+  location,
+  dateTime,
 }: LandingScreenProps) => {
   const controller = usePromptInputController();
 
@@ -165,6 +170,13 @@ const LandingScreen = ({
         <h1 className="font-esteban text-3xl font-semibold text-white/80 sm:text-4xl">
           What would you like to know?
         </h1>
+        {(location || dateTime) && (
+          <div className="mt-3 space-y-1 text-sm text-neutral-400">
+            {dateTime && (
+              <p className="text-xs text-neutral-500 sm:text-sm">{dateTime}</p>
+            )}
+          </div>
+        )}
       </div>
       <div className="mt-10 w-full max-w-2xl">
           <ChatInputBar
@@ -247,7 +259,7 @@ const ChatInputBar = ({
           disabled={isStreaming}
           placeholder={
             isStreaming
-              ? "Waiting for Franklin to respond…"
+              ? "Waiting to respond…"
               : "What would you like to know?"
           }
           ref={textareaRef}
@@ -321,6 +333,7 @@ export const ChatWindow = () => {
   );
   const [useWebSearch, setUseWebSearch] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
+  const userLocationTime = useUserLocationTime();
 
   const transport = useMemo(
     () => new DefaultChatTransport<ChatMessage>({ api: "/api/chat" }),
@@ -436,6 +449,8 @@ export const ChatWindow = () => {
           onModelChange={setSelectedModel}
           useWebSearch={useWebSearch}
           onToggleWebSearch={() => setUseWebSearch((prev) => !prev)}
+          location={userLocationTime.location}
+          dateTime={userLocationTime.dateTime}
         />
       ) : (
         <div className="flex min-h-screen flex-col bg-[#050505] text-neutral-100">
@@ -443,12 +458,20 @@ export const ChatWindow = () => {
           <div className="mx-auto flex h-full w-full max-w-[400px] flex-col gap-6 sm:max-w-[500px] md:max-w-3xl md:w-[720px]">
             <header className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4 shadow-lg shadow-black/40 backdrop-blur sm:flex-row sm:items-center sm:justify-between sm:gap-3 sm:px-5">
               <div className="space-y-1 text-center sm:text-left">
-                <h1 className="text-xs font-semibold text-neutral-400 sm:text-sm">
-                  Hope you&apos;re having an awesome day!
-                </h1>
-                <p className="text-[11px] text-neutral-500 sm:text-xs">
-                  Your friendly neighborhood AI assistant
-                </p>
+                {(userLocationTime.location || userLocationTime.dateTime) && (
+                  <div className="space-y-0.5">
+                    {userLocationTime.location && (
+                      <p className="text-[11px] font-medium text-neutral-300 sm:text-xs">
+                        {userLocationTime.location || 'Location not found'}
+                      </p>
+                    )}
+                    {userLocationTime.dateTime && (
+                      <p className="text-[11px] text-neutral-500 sm:text-xs">
+                        {userLocationTime.dateTime || 'Location not found'}
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-end">
@@ -477,7 +500,7 @@ export const ChatWindow = () => {
                   {messages.length === 0 ? (
                     <ConversationEmptyState
                       className="bg-transparent px-2 sm:px-0"
-                      description="Start a conversation to see responses from Franklin."
+                      description="Start a conversation to see responses."
                       title="No messages yet"
                     />
                   ) : (
@@ -544,7 +567,7 @@ export const ChatWindow = () => {
                   {shouldShowLoader ? (
                     <div className="flex items-center gap-2 py-4 pl-1 text-sm text-neutral-400">
                       <Loader size={18} />
-                      <span>Franklin is thinking…</span>
+                      <span>Thinking…</span>
                     </div>
                   ) : null}
 
