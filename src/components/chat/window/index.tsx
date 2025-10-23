@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { motion } from "framer-motion";
 import { useChat } from "@ai-sdk/react";
 import type { ChatStatus, UIMessage, UIMessagePart } from "ai";
 import { DefaultChatTransport } from "ai";
@@ -165,45 +166,84 @@ const LandingScreen = ({
   const controller = usePromptInputController();
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-[#050505] px-4 py-10 text-white">
-      <div className="max-w-3xl text-center">
-        <h1 className="font-esteban text-3xl font-semibold text-white/80 sm:text-4xl">
+    <motion.div
+      className="flex min-h-screen flex-col items-center justify-center bg-[#050505] px-4 py-10 text-white"
+      initial={{ opacity: 0, y: 24 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+    >
+      <motion.div
+        className="max-w-3xl text-center"
+        initial={{ opacity: 0, y: 18 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.15, duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <motion.h1
+          className="font-esteban text-3xl font-semibold text-white/80 sm:text-4xl"
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.25, duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+        >
           What would you like to know?
-        </h1>
+        </motion.h1>
         {(location || dateTime) && (
-          <div className="mt-3 space-y-1 text-sm text-neutral-400">
+          <motion.div
+            className="mt-3 space-y-1 text-sm text-neutral-400"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.35, duration: 0.45, ease: "easeOut" }}
+          >
             {dateTime && (
               <p className="text-xs text-neutral-500 sm:text-sm">{dateTime}</p>
             )}
-          </div>
+          </motion.div>
         )}
-      </div>
-      <div className="mt-10 w-full max-w-2xl">
-          <ChatInputBar
-            formClassName="bg-transparent"
-            isStreaming={isStreaming}
-            model={model}
-            onModelChange={onModelChange}
-            onSubmit={onSubmit}
-            status={status}
-            useWebSearch={useWebSearch}
-            onToggleWebSearch={onToggleWebSearch}
-          />
-      </div>
+      </motion.div>
+      <motion.div
+        className="mt-10 w-full max-w-2xl"
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.45, duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <ChatInputBar
+          formClassName="bg-transparent"
+          isStreaming={isStreaming}
+          model={model}
+          onModelChange={onModelChange}
+          onSubmit={onSubmit}
+          status={status}
+          useWebSearch={useWebSearch}
+          onToggleWebSearch={onToggleWebSearch}
+        />
+      </motion.div>
 
-      <div className="mt-8 flex max-w-3xl flex-wrap justify-center gap-x-4 gap-y-3 text-sm text-neutral-500">
-        {suggestions.map((suggestion) => (
-          <button
+      <motion.div
+        className="mt-8 flex max-w-3xl flex-wrap justify-center gap-x-4 gap-y-3 text-sm text-neutral-500"
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.55, duration: 0.5, ease: "easeOut" }}
+      >
+        {suggestions.map((suggestion, index) => (
+          <motion.button
             key={suggestion}
             className="transition-colors hover:text-white"
             onClick={() => controller.textInput.setInput(suggestion)}
             type="button"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{
+              duration: 0.45,
+              ease: "easeOut",
+              delay: 0.6 + index * 0.05,
+            }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.97 }}
           >
             {suggestion}
-          </button>
+          </motion.button>
         ))}
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
 
